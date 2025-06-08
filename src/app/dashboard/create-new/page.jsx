@@ -6,6 +6,9 @@ import SelectDuration from "./_components/SelectDuration";
 import { Button } from "@/components/ui/button";
 import CustomLoading from "./_components/CustomLoading";
 import axios from "axios";
+import { v4 as uuidv4 } from "uuid";
+
+const scriptData = "This is a Test Message.";
 
 export default function CreateNew() {
   const [formData, setFormData] = useState([]);
@@ -20,7 +23,8 @@ export default function CreateNew() {
   };
 
   const onCreateClickHandler = () => {
-    GetVideoScript();
+    // GetVideoScript();
+    GenerateAudioFile(scriptData);
   };
 
   // 發送 API 請求的函式，Get Video Script
@@ -40,11 +44,33 @@ export default function CreateNew() {
         prompt: prompt,
       })
       .then((resp) => {
-        console.log(resp.data.result);
         setVideoScript(resp.data.result);
+        GenerateAudioFile(resp.data.result);
       });
     setLoading(false);
   };
+
+  // 發送 API 請求的函式，Generate Audio File
+  const GenerateAudioFile = async (videoScriptData) => {
+    setLoading(true);
+    let script = "";
+    const id = uuidv4();
+    // videoScriptData.forEach((item) => {
+    //   script = script + item.ContentText + "";
+    // });
+
+    await axios
+      .post("/api/generate-audio", {
+        text: videoScriptData,
+        id: id,
+      })
+      .then((resp) => {
+        console.log(resp.data);
+      });
+
+    setLoading(false);
+  };
+
   return (
     <div className="md:px-20">
       <h2 className="font-medium text-4xl text-center">Create New</h2>
