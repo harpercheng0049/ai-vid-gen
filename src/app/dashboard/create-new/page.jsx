@@ -9,12 +9,15 @@ import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
 
 const scriptData = "This is a Test Message.";
+const FILEURL =
+  "https://firebasestorage.googleapis.com/v0/b/ai-vid-gen-2d498.firebasestorage.app/o/ai-video-files%2F65673159-e7df-4ca2-86eb-0dce50450faa.mp3?alt=media&token=4be0d273-8252-4f35-aaa0-16456cc52fe7";
 
 export default function CreateNew() {
   const [formData, setFormData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
+  const [captions, setCaptions] = useState();
 
   const onHandleInputChange = (fieldName, fieldValue) => {
     setFormData((prev) => ({
@@ -25,7 +28,8 @@ export default function CreateNew() {
 
   const onCreateClickHandler = () => {
     // GetVideoScript();
-    GenerateAudioFile(scriptData);
+    // GenerateAudioFile(scriptData);
+    GenerateCaption(FILEURL);
   };
 
   // 發送 API 請求的函式，Get Video Script
@@ -67,6 +71,22 @@ export default function CreateNew() {
       })
       .then((resp) => {
         setAudioFileUrl(resp.data.result);
+      });
+
+    setLoading(false);
+  };
+
+  // 發送 API 請求的函式，Generate Caption
+  const GenerateCaption = async (fileUrl) => {
+    setLoading(true);
+
+    await axios
+      .post("/api/generate-caption", {
+        audioFileUrl: fileUrl,
+      })
+      .then((resp) => {
+        console.log(resp.data.result);
+        setCaptions(resp?.data?.result);
       });
 
     setLoading(false);
