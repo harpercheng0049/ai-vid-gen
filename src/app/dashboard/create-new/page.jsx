@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import SelectTopic from "./_components/SelectTopic";
 import SelectStyle from "./_components/SelectStyle";
 import SelectDuration from "./_components/SelectDuration";
@@ -7,10 +7,7 @@ import { Button } from "@/components/ui/button";
 import CustomLoading from "./_components/CustomLoading";
 import axios from "axios";
 import { v4 as uuidv4 } from "uuid";
-
-const scriptData = "This is a Test Message.";
-const FILEURL =
-  "https://firebasestorage.googleapis.com/v0/b/ai-vid-gen-2d498.firebasestorage.app/o/ai-video-files%2F65673159-e7df-4ca2-86eb-0dce50450faa.mp3?alt=media&token=4be0d273-8252-4f35-aaa0-16456cc52fe7";
+import { VideoDataContext } from "@/app/_context/VideoDataContext";
 
 export default function CreateNew() {
   const [formData, setFormData] = useState([]);
@@ -18,6 +15,8 @@ export default function CreateNew() {
   const [videoScript, setVideoScript] = useState();
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
+  const [imageList, setImageList] = useState();
+  const { videoData, setVideoData } = useContext(VideoDataContext);
 
   const onHandleInputChange = (fieldName, fieldValue) => {
     setFormData((prev) => ({
@@ -27,9 +26,10 @@ export default function CreateNew() {
   };
 
   const onCreateClickHandler = () => {
-    // GetVideoScript();
+    GetVideoScript();
     // GenerateAudioFile(scriptData);
-    GenerateCaption(FILEURL);
+    // GenerateCaption(FILEURL);
+    // GenerateImage();
   };
 
   // 發送 API 請求的函式，Get Video Script
@@ -44,15 +44,18 @@ export default function CreateNew() {
       formData.imageStyle +
       " format for each scene and give me result in JSON format with imagePrompt and ContentText as field, No Plain text";
     console.log(prompt);
-    const result = await axios
-      .post("/api/get-video-script", {
-        prompt: prompt,
-      })
-      .then((resp) => {
-        setVideoScript(resp.data.result);
-        GenerateAudioFile(resp.data.result);
-      });
-    setLoading(false);
+
+    const resp = await axios.post("/api/get-video-script", {
+      prompt: prompt,
+    });
+    if (resp.data.result) {
+      setVideoData((prev) => ({
+        ...prev,
+        videoScript: resp.data.result,
+      }));
+      setVideoScript(resp.data.result);
+      await GenerateAudioFile(resp.data.result);
+    }
   };
 
   // 發送 API 請求的函式，Generate Audio File
@@ -60,37 +63,64 @@ export default function CreateNew() {
     setLoading(true);
     let script = "";
     const id = uuidv4();
-    // videoScriptData.forEach((item) => {
-    //   script = script + item.ContentText + "";
-    // });
+    videoScriptData.forEach((item) => {
+      script = script + item.ContentText + "";
+    });
 
-    await axios
-      .post("/api/generate-audio", {
-        text: videoScriptData,
-        id: id,
-      })
-      .then((resp) => {
-        setAudioFileUrl(resp.data.result);
-      });
-
-    setLoading(false);
+    const resp = await axios.post("/api/generate-audio", {
+      text: script,
+      id: id,
+    });
+    setVideoData((prev) => ({
+      ...prev,
+      audioFileUrl: resp.data.result,
+    }));
+    setAudioFileUrl(resp.data.result);
+    resp.data.result &&
+      (await GenerateCaption(resp.data.result, videoScriptData));
   };
 
   // 發送 API 請求的函式，Generate Caption
-  const GenerateCaption = async (fileUrl) => {
+  const GenerateCaption = async (fileUrl, videoScriptData) => {
     setLoading(true);
+    console.log(fileUrl);
+    const resp = await axios.post("/api/generate-caption", {
+      audioFileUrl: fileUrl,
+    });
+    setCaptions(resp?.data?.result);
+    setVideoData((prev) => ({
+      ...prev,
+      captions: resp.data.result,
+    }));
+    resp.data.result && (await GenerateImage(videoScriptData));
+  };
 
-    await axios
-      .post("/api/generate-caption", {
-        audioFileUrl: fileUrl,
-      })
-      .then((resp) => {
+  // 發送 API 請求的函式，Generate Image
+  const GenerateImage = async (videoScriptData) => {
+    let images = [];
+
+    for (const element of videoScriptData) {
+      try {
+        const resp = await axios.post("/api/generate-image", {
+          prompt: element.imagePrompt,
+        });
         console.log(resp.data.result);
-        setCaptions(resp?.data?.result);
-      });
-
+        images.push(resp.data.result);
+      } catch (e) {
+        console.log("error:" + e);
+      }
+    }
+    setVideoData((prev) => ({
+      ...prev,
+      imageList: images,
+    }));
+    setImageList(images);
     setLoading(false);
   };
+
+  useEffect(() => {
+    console.log(videoData);
+  }, [videoData]);
 
   return (
     <div className="md:px-20">
