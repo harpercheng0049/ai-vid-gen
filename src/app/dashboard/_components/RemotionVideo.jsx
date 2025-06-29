@@ -1,0 +1,41 @@
+import React from "react";
+import { AbsoluteFill, Sequence, useVideoConfig, Img, Audio } from "remotion";
+
+function RemotionVideo({
+  script,
+  imageList,
+  audioFileUrl,
+  captions,
+  setDurationInFrame,
+}) {
+  const { fps } = useVideoConfig();
+
+  const getDurationFrame = () => {
+    setDurationInFrame((captions[captions?.length - 1]?.end / 1000) * fps);
+    return (captions[captions?.length - 1]?.end / 1000) * fps;
+  };
+
+  return (
+    <AbsoluteFill className="bg-gray-700">
+      {imageList?.map((item, index) => (
+        <Sequence
+          key={index}
+          from={(index * getDurationFrame()) / imageList?.length}
+          durationInFrames={getDurationFrame()}
+        >
+          <Img
+            src={item}
+            style={{
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+            }}
+          />
+        </Sequence>
+      ))}
+      <Audio src={audioFileUrl} />
+    </AbsoluteFill>
+  );
+}
+
+export default RemotionVideo;
