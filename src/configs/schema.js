@@ -1,3 +1,4 @@
+import { integer } from "drizzle-orm/gel-core";
 import { pgTable, serial, varchar, boolean, json } from "drizzle-orm/pg-core";
 
 export const Users = pgTable("user", {
@@ -6,6 +7,7 @@ export const Users = pgTable("user", {
   email: varchar("email").notNull(),
   imageUrl: varchar("imageUrl"),
   subscription: boolean("subscription").default(false),
+  credits: integer("credits").default(30), // 30 Credits = 3 videos
 });
 
 export const VideoData = pgTable("videoData", {
