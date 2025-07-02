@@ -12,6 +12,9 @@ import { useUser } from "@clerk/nextjs";
 import { VideoData } from "@/configs/schema";
 import { db } from "@/configs/db";
 import PlayerDialog from "../_components/PlayerDialog";
+import { UserDetailContext } from "@/app/_context/UserDetailContext";
+import { Users } from "@/configs/schema";
+import { eq } from "drizzle-orm";
 
 export default function CreateNew() {
   const [formData, setFormData] = useState([]);
@@ -20,9 +23,10 @@ export default function CreateNew() {
   const [audioFileUrl, setAudioFileUrl] = useState();
   const [captions, setCaptions] = useState();
   const [imageList, setImageList] = useState();
-  const [playVideo, setPlayVideo] = useState(true);
-  const [videoId, setVideoId] = useState(1);
+  const [playVideo, setPlayVideo] = useState(false);
+  const [videoId, setVideoId] = useState();
   const { videoData, setVideoData } = useContext(VideoDataContext);
+  const { userDetail, setUserDetail } = useContext(UserDetailContext);
   const { user } = useUser();
 
   const onHandleInputChange = (fieldName, fieldValue) => {
@@ -33,10 +37,11 @@ export default function CreateNew() {
   };
 
   const onCreateClickHandler = () => {
+    if (userDetail?.credits <= 0) {
+      toast("You don't have enough Credits");
+      return;
+    }
     GetVideoScript();
-    // GenerateAudioFile(scriptData);
-    // GenerateCaption(FILEURL);
-    // GenerateImage();
   };
 
   // 發送 API 請求的函式，Get Video Script
@@ -50,7 +55,6 @@ export default function CreateNew() {
       " along with AI image prompt in " +
       formData.imageStyle +
       " format for each scene and give me result in JSON format with imagePrompt and ContentText as field, No Plain text";
-    console.log(prompt);
 
     const resp = await axios.post("/api/get-video-script", {
       prompt: prompt,
@@ -67,10 +71,15 @@ export default function CreateNew() {
 
       // 接著進入第二階段：生成 Audio 語音
       await GenerateAudioFile(resp.data.result);
+    } else {
+      toast("Server Side Error: Refresh screena and Try again");
     }
   };
 
-  // 發送 API 請求的函式，Generate Audio File
+  /**
+   * 發送 API 請求的函式，Generate Audio File
+   * @param {*} videoScriptData
+   */
   const GenerateAudioFile = async (videoScriptData) => {
     setLoading(true);
     let script = "";
@@ -94,7 +103,10 @@ export default function CreateNew() {
       (await GenerateCaption(resp.data.result, videoScriptData));
   };
 
-  // 發送 API 請求的函式，Generate Caption
+  /**
+   * 發送 API 請求的函式，Generate Caption
+   * @param {*} fileUrl
+   */
   const GenerateCaption = async (fileUrl, videoScriptData) => {
     setLoading(true);
     console.log(fileUrl);
@@ -137,8 +149,7 @@ export default function CreateNew() {
   };
 
   useEffect(() => {
-    console.log(videoData);
-    if (Object.keys(videoData).length === 4) {
+    if (videoData && Object?.keys(videoData)?.length == 4) {
       SaveVideoData(videoData);
     }
   }, [videoData]);
@@ -157,10 +168,27 @@ export default function CreateNew() {
       })
       .returning({ id: VideoData?.id });
 
+    // 在成功建立影片後更新點數
+    await UpdateUserCredits();
     setVideoId(result[0].id);
     setPlayVideo(true);
     console.log(result);
     setLoading(false);
+  };
+
+  // Used to update user credits
+  const UpdateUserCredits = async () => {
+    const result = await db
+      .update(Users)
+      .set({
+        credits: userDetail?.credits - 10,
+      })
+      .where(eq(Users?.email, user?.primaryEmailAddress?.emailAddress));
+    console.log(result);
+    setUserDetail((prev) => ({
+      ...prev,
+      credits: userDetail?.credits - 10,
+    }));
   };
 
   return (
