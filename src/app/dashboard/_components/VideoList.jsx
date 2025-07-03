@@ -8,7 +8,7 @@ function VideoList({ videoList }) {
   const [openPlayDialog, setOpenPlayDialog] = useState(false);
   const [videoId, setVideoId] = useState();
   return (
-    <div className="mt-10 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-10">
+    <div className="mt-10 flex flex-wrap gap-6 justify-center md:justify-start bg-amber-50">
       {videoList?.map((video) => (
         <div
           key={video.id}

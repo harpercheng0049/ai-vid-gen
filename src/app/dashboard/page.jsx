@@ -29,12 +29,14 @@ export default function Dashboard() {
   };
 
   return (
-    <div>
-      <div className="flex justify-between items-center">
-        <h2 className="font-medium text-2xl">Dashboard</h2>
+    <div className="p-10 mt-5 md:mt-10">
+      <div className="flex flex-col-reverse md:flex-row justify-between items-center">
+        <h2 className="font-medium text-3xl md:text-4xl">Dashboard</h2>
 
         <Link href={"/dashboard/create-new"}>
-          <Button className="cursor-pointer">+ Create New</Button>
+          <Button className="cursor-pointer bg-indigo-500 hover:bg-indigo-600 text-white mb-4 md:mb-0">
+            + Create New
+          </Button>
         </Link>
       </div>
 

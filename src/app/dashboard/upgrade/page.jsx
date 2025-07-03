@@ -39,9 +39,11 @@ export default function UpgradePage() {
   ];
 
   return (
-    <div className="p-10 text-center">
-      <h2 className="font-medium text-4xl text-center mb-4">Pricing Plans</h2>
-      <p className="text-gray-600 mb-8 text-lg max-w-xl mx-auto">
+    <div className="p-10 mt-5 md:mt-10 text-center">
+      <h2 className="font-medium text-3xl md:text-4xl text-center mb-4">
+        Pricing Plans
+      </h2>
+      <p className="text-gray-600 mb-8 text-sm md:text-lg max-w-xl mx-auto">
         Choose the plan that fits your content creation needs — unlock AI video
         power, expand your reach, and create without limits.
       </p>
@@ -67,19 +69,22 @@ export default function UpgradePage() {
       </div>
 
       {/* Plans */}
-      <div className="mt-20 flex flex-col md:flex-row justify-center gap-8">
+      <div className="mt-6 md:mt-20 flex flex-col md:flex-row items-center justify-center gap-8">
         {plans.map((plan) => (
           <div
             key={plan.name}
-            className="bg-white rounded-xl shadow-lg p-8 w-full max-w-sm border"
+            className="bg-white rounded-xl shadow-lg px-8 py-7 md:py-12 w-full max-w-sm border"
           >
             <h3 className="text-2xl font-semibold mb-4">{plan.name}</h3>
-            <ul className="text-gray-600 mb-6 space-y-2">
+            <ul className="text-gray-600 my-2 md:my-8 space-y-1">
               {plan.features.map((feature, idx) => (
-                <li key={idx}>{feature}</li>
+                <li key={idx} className="text-sm md:text-md">
+                  {" "}
+                  {feature}
+                </li>
               ))}
             </ul>
-            <p className="text-xl font-bold mb-4">
+            <p className="text-lg md:text-xl font-bold mb-4">
               ${isMonthly ? plan.monthly : plan.yearly}
               <span className="text-sm text-gray-500">
                 /{isMonthly ? "month" : "year"}

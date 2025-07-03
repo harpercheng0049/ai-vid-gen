@@ -192,10 +192,12 @@ export default function CreateNew() {
   };
 
   return (
-    <div className="md:px-20">
-      <h2 className="font-medium text-4xl text-center">Create New</h2>
+    <div className="p-5 md:p-10 mt-10">
+      <h2 className="font-medium text-3xl md:text-4xl text-center">
+        Create New
+      </h2>
 
-      <div className="mt-10 p-10 shadow-md">
+      <div className="mt-5 md:mt-10 p-5 md:p-10 shadow-md">
         {/* Select Topic */}
         <SelectTopic onUserSelect={onHandleInputChange} />
 
@@ -206,7 +208,10 @@ export default function CreateNew() {
         <SelectDuration onUserSelect={onHandleInputChange} />
 
         {/* Create Button */}
-        <Button className="mt-10 w-full" onClick={onCreateClickHandler}>
+        <Button
+          className="mt-10 w-full cursor-pointer bg-indigo-500 hover:bg-indigo-600 text-white"
+          onClick={onCreateClickHandler}
+        >
           Create Video
         </Button>
       </div>

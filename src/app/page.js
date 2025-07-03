@@ -18,7 +18,8 @@ export default function LandingPage() {
 
   return (
     <div className="min-h-screen flex flex-col justify-center items-center px-6 text-center bg-gradient-to-br from-indigo-100 to-white">
-      <h1 className="text-4xl md:text-6xl font-medium mb-6">
+      <p className="text-gray-600">This is a demo side project</p>
+      <h1 className="text-4xl md:text-6xl font-medium my-6">
         Create AI-Generated Videos in Minutes
       </h1>
       <p className="text-lg md:text-xl mb-6 text-gray-600 max-w-2xl">
@@ -29,12 +30,26 @@ export default function LandingPage() {
       <Link href="/dashboard">
         <Button className="text-lg px-6 py-6 cursor-pointer">Start Now</Button>
       </Link>
-      <div className="mt-12">
-        <img
-          src="/placeholder-video.gif"
-          alt="Preview"
-          className="rounded-xl shadow-2xl w-[300px] md:w-[550px]"
+      <div className="mt-12 w-full md:w-4/5 lg:w-3/5 h-[200px] relative overflow-hidden rounded-3xl">
+        <Image
+          src="/landing-bg.png"
+          alt="landing-bg"
+          width={1536}
+          height={1024}
+          objectFit="cover"
         />
+
+        <div className="absolute inset-0 flex items-center justify-center  text-white p-4">
+          <div className="text-center">
+            <h2 className="text-2xl md:text-3xl font-light mb-2">
+              From Idea to Video in Under 3 Minutes
+            </h2>
+            <p className="text-sm mt-2">
+              Generate complete videos with script, voice, and visuals — no
+              editing required.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
