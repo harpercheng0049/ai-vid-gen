@@ -9,7 +9,9 @@ import React from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-export default function SideNav() {
+export default function SideNav({ onLinkClick }) {
+  const pathname = usePathname();
+
   const MenuOption = [
     {
       id: 1,
@@ -26,33 +28,31 @@ export default function SideNav() {
     {
       id: 3,
       name: "Upgrade",
-      path: "/upgrade",
+      path: "/dashboard/upgrade",
       icon: ShieldPlus,
-    },
-    {
-      id: 4,
-      name: "Account",
-      path: "/account",
-      icon: CircleUserRound,
     },
   ];
 
-  const path = usePathname();
   return (
-    <div className="w-64 h-screen shadow-md p-5">
+    <div className="w-full md:w-64 h-screen shadow-none md:shadow-md p-5">
       <div className="grid gap-3">
-        {MenuOption.map((item, index) => (
-          <Link href={item.path} key={index}>
-            <div
-              className={`flex items-center gap-3 p-3 cursor-pointer rounded-md hover:bg-gray-200
-              ${path == item.path && "bg-gray-200"}  
-                `}
-            >
-              <item.icon />
-              <h2>{item.name}</h2>
-            </div>
-          </Link>
-        ))}
+        {MenuOption.map((item, index) => {
+          const isActive = pathname === item.path;
+          const Icon = item.icon;
+
+          return (
+            <Link href={item.path} key={item.id} onClick={onLinkClick}>
+              <div
+                className={`flex items-center gap-3 p-3 cursor-pointer rounded-md hover:bg-gray-100 ${
+                  isActive ? "bg-gray-200" : ""
+                }`}
+              >
+                <Icon className="w-5 h-5" />
+                <h2>{item.name}</h2>
+              </div>
+            </Link>
+          );
+        })}
       </div>
     </div>
   );

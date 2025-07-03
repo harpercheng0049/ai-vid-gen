@@ -8,10 +8,12 @@ import { useUser } from "@clerk/nextjs";
 import { db } from "@/configs/db";
 import { Users } from "@/configs/schema";
 import { eq } from "drizzle-orm";
+import { Menu, X } from "lucide-react";
 
 export default function DashboardLayout({ children }) {
   const [videoData, setVideoData] = useState([]);
   const [userDetail, setUserDetail] = useState([]);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { user } = useUser();
 
   useEffect(() => {
@@ -33,6 +35,24 @@ export default function DashboardLayout({ children }) {
           <div className="hidden md:block h-screen bg-white fixed mt-[65px] w-64">
             <SideNav />
           </div>
+
+          <div className="md:hidden fixed top-20 left-4 z-50">
+            <button onClick={() => setIsMenuOpen(true)}>
+              <Menu className="size-8 text-gray-700" />
+            </button>
+          </div>
+
+          {isMenuOpen && (
+            <div className="md:hidden fixed top-20 right-5 inset-0 z-50 bg-white">
+              <div className="flex justify-end">
+                <button onClick={() => setIsMenuOpen(false)}>
+                  <X className="size-8 text-gray-600" />
+                </button>
+              </div>
+              <SideNav onLinkClick={() => setIsMenuOpen(false)} />
+            </div>
+          )}
+
           <div>
             <Header />
             <div className="md:ml-64 p-10">{children}</div>
