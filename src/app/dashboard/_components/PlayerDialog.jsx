@@ -14,8 +14,9 @@ import { VideoData } from "@/configs/schema";
 import { db } from "@/configs/db";
 import { eq } from "drizzle-orm";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
-function PlayerDialog({ playVideo, videoId }) {
+function PlayerDialog({ playVideo, videoId, onClose }) {
   const [openDialog, setOpenDialog] = useState(false);
   const [videoData, setVideoData] = useState();
   const [durationInFrame, setDurationInFrame] = useState(100);
@@ -24,7 +25,7 @@ function PlayerDialog({ playVideo, videoId }) {
   useEffect(() => {
     setOpenDialog(!!playVideo);
     videoId && GetVideoData();
-  }, [playVideo]);
+  }, [playVideo, videoId]);
 
   const GetVideoData = async () => {
     const result = await db
@@ -32,12 +33,23 @@ function PlayerDialog({ playVideo, videoId }) {
       .from(VideoData)
       .where(eq(VideoData.id, videoId));
 
-    console.log(result);
-    setVideoData(result[0]);
+    if (result?.[0]) {
+      setVideoData(result[0]);
+    }
+  };
+
+  const handleClose = () => {
+    setOpenDialog(false);
+    if (typeof onClose === "function") {
+      onClose(); // 通知父層清除狀態
+    }
   };
 
   return (
-    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+    <Dialog
+      open={openDialog}
+      onOpenChange={(isOpen) => !isOpen && handleClose()}
+    >
       <DialogContent className="bg-white flex flex-col items-center">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold my-5">
@@ -48,7 +60,7 @@ function PlayerDialog({ playVideo, videoId }) {
           </DialogDescription>
         </DialogHeader>
 
-        {videoData && videoData.audioFileUrl && (
+        {videoData?.audioFileUrl && (
           <Player
             component={RemotionVideo}
             durationInFrames={Number(durationInFrame.toFixed(0))}
@@ -74,7 +86,16 @@ function PlayerDialog({ playVideo, videoId }) {
           >
             Cancel
           </Button>
-          <Button className="bg-indigo-400 hover:bg-indigo-500">Export</Button>
+          <Button
+            className="bg-indigo-400 hover:bg-indigo-500"
+            onClick={() => {
+              toast(
+                "Export is currently unavailable due to hosting restrictions."
+              );
+            }}
+          >
+            Export
+          </Button>
         </div>
       </DialogContent>
     </Dialog>

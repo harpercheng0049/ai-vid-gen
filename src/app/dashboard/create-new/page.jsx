@@ -15,6 +15,7 @@ import PlayerDialog from "../_components/PlayerDialog";
 import { UserDetailContext } from "@/app/_context/UserDetailContext";
 import { Users } from "@/configs/schema";
 import { eq } from "drizzle-orm";
+import { toast } from "sonner";
 
 export default function CreateNew() {
   const [formData, setFormData] = useState([]);
@@ -73,6 +74,7 @@ export default function CreateNew() {
       await GenerateAudioFile(resp.data.result);
     } else {
       toast("Server Side Error: Refresh screena and Try again");
+      setLoading(false);
     }
   };
 
@@ -84,23 +86,32 @@ export default function CreateNew() {
     setLoading(true);
     let script = "";
     const id = uuidv4();
+
     videoScriptData.forEach((item) => {
       script = script + item.ContentText + "";
     });
 
-    const resp = await axios.post("/api/generate-audio", {
-      text: script,
-      id: id,
-    });
-    // 將音檔存到 Context
-    setVideoData((prev) => ({
-      ...prev,
-      audioFileUrl: resp.data.result,
-    }));
-    // 同時存一份在本地 useState
-    setAudioFileUrl(resp.data.result);
-    resp.data.result &&
-      (await GenerateCaption(resp.data.result, videoScriptData));
+    try {
+      const resp = await axios.post("/api/generate-audio", {
+        text: script,
+        id: id,
+      });
+
+      // 成功才存入
+      setVideoData((prev) => ({
+        ...prev,
+        audioFileUrl: resp.data.result,
+      }));
+      setAudioFileUrl(resp.data.result);
+
+      // 若成功才繼續生成字幕
+      if (resp.data.result) {
+        await GenerateCaption(resp.data.result, videoScriptData);
+      }
+    } catch (err) {
+      toast("Audio generation failed.");
+      setLoading(false);
+    }
   };
 
   /**
@@ -109,18 +120,23 @@ export default function CreateNew() {
    */
   const GenerateCaption = async (fileUrl, videoScriptData) => {
     setLoading(true);
-    console.log(fileUrl);
-    const resp = await axios.post("/api/generate-caption", {
-      audioFileUrl: fileUrl,
-    });
-    // 存入 local 狀態
-    setCaptions(resp?.data?.result);
-    // 存入 context 狀態
-    setVideoData((prev) => ({
-      ...prev,
-      captions: resp.data.result,
-    }));
-    resp.data.result && (await GenerateImage(videoScriptData));
+
+    try {
+      const resp = await axios.post("/api/generate-caption", {
+        audioFileUrl: fileUrl,
+      });
+      setCaptions(resp.data.result);
+      setVideoData((prev) => ({
+        ...prev,
+        captions: resp.data.result,
+      }));
+      if (resp.data.result) {
+        await GenerateImage(videoScriptData);
+      }
+    } catch (err) {
+      toast("Caption generation failed.");
+      setLoading(false);
+    }
   };
 
   // 發送 API 請求的函式，Generate Image
@@ -132,7 +148,6 @@ export default function CreateNew() {
         const resp = await axios.post("/api/generate-image", {
           prompt: element.imagePrompt,
         });
-        console.log(resp.data.result);
         images.push(resp.data.result);
       } catch (e) {
         console.log("error:" + e);
@@ -149,7 +164,7 @@ export default function CreateNew() {
   };
 
   useEffect(() => {
-    if (videoData && Object?.keys(videoData)?.length == 4) {
+    if (videoData && Object.keys(videoData).length === 4) {
       SaveVideoData(videoData);
     }
   }, [videoData]);
@@ -172,23 +187,28 @@ export default function CreateNew() {
     await UpdateUserCredits();
     setVideoId(result[0].id);
     setPlayVideo(true);
-    console.log(result);
     setLoading(false);
   };
 
   // Used to update user credits
   const UpdateUserCredits = async () => {
-    const result = await db
+    await db
       .update(Users)
       .set({
         credits: userDetail?.credits - 10,
       })
       .where(eq(Users?.email, user?.primaryEmailAddress?.emailAddress));
-    console.log(result);
     setUserDetail((prev) => ({
       ...prev,
       credits: userDetail?.credits - 10,
     }));
+  };
+
+  // 關閉視窗時，清空播放狀態與影片資料
+  const handleCloseDialog = () => {
+    setPlayVideo(false);
+    setVideoId(undefined);
+    setVideoData({});
   };
 
   return (
@@ -216,7 +236,11 @@ export default function CreateNew() {
         </Button>
       </div>
       <CustomLoading loading={loading} />
-      <PlayerDialog playVideo={playVideo} videoId={videoId} />
+      <PlayerDialog
+        playVideo={playVideo}
+        videoId={videoId}
+        onClose={handleCloseDialog}
+      />
     </div>
   );
 }
