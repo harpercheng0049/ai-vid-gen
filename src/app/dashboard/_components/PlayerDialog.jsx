@@ -37,7 +37,7 @@ function PlayerDialog({ playVideo, videoId }) {
   };
 
   return (
-    <Dialog open={openDialog}>
+    <Dialog open={openDialog} onOpenChange={setOpenDialog}>
       <DialogContent className="bg-white flex flex-col items-center">
         <DialogHeader>
           <DialogTitle className="text-3xl font-bold my-5">

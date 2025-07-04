@@ -52,7 +52,7 @@ export default function UpgradePage() {
       <div className="flex justify-center gap-2 mb-10">
         <button
           onClick={() => setBillingCycle("monthly")}
-          className={`px-4 py-2 rounded-full text-sm font-medium ${
+          className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer ${
             isMonthly ? "bg-black text-white" : "bg-gray-200 text-gray-700"
           }`}
         >
@@ -60,7 +60,7 @@ export default function UpgradePage() {
         </button>
         <button
           onClick={() => setBillingCycle("yearly")}
-          className={`px-4 py-2 rounded-full text-sm font-medium ${
+          className={`px-4 py-2 rounded-full text-sm font-medium cursor-pointer ${
             !isMonthly ? "bg-black text-white" : "bg-gray-200 text-gray-700"
           }`}
         >
