@@ -35,6 +35,5 @@ export async function POST(req) {
   // 將 audioBuffer 上傳到 Firebase Storage 指定位置
   await uploadBytes(storageRef, audioBuffer, { contentType: "audio/mp3" });
   const downloadUrl = await getDownloadURL(storageRef);
-  console.log(downloadUrl);
   return NextResponse.json({ result: downloadUrl });
 }

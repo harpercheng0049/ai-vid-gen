@@ -42,6 +42,11 @@ export default function CreateNew() {
       toast("You don't have enough Credits");
       return;
     }
+
+    if (!formData.topic || !formData.imageStyle || !formData.duration) {
+      toast("Please fill out all the fields before creating a video.");
+      return;
+    }
     GetVideoScript();
   };
 
@@ -109,7 +114,7 @@ export default function CreateNew() {
         await GenerateCaption(resp.data.result, videoScriptData);
       }
     } catch (err) {
-      toast("Audio generation failed.");
+      console.error("Audio generation failed:", err);
       setLoading(false);
     }
   };
@@ -134,7 +139,7 @@ export default function CreateNew() {
         await GenerateImage(videoScriptData);
       }
     } catch (err) {
-      toast("Caption generation failed.");
+      console.error("Caption generation failed:", err);
       setLoading(false);
     }
   };
@@ -149,8 +154,8 @@ export default function CreateNew() {
           prompt: element.imagePrompt,
         });
         images.push(resp.data.result);
-      } catch (e) {
-        console.log("error:" + e);
+      } catch (err) {
+        console.error("Image generation failed for prompt:", err);
       }
     }
     // 存入 context 狀態

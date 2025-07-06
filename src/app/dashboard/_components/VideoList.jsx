@@ -30,7 +30,7 @@ function VideoList({ videoList }) {
             }}
             inputProps={{
               ...video,
-              setDurationInFrame: (val) => console.log(val),
+              setDurationInFrame: () => {},
             }}
           />
         </div>
