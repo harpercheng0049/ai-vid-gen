@@ -46,7 +46,7 @@ function RemotionVideo({
   }
 
   return (
-    <AbsoluteFill className="bg-gray-700">
+    <AbsoluteFill className="bg-gray-900">
       {imageList.map((item, index) => {
         const durationPerImage = durationInFrames / imageList.length;
         const startTime = index * durationPerImage;
@@ -59,15 +59,15 @@ function RemotionVideo({
             startTime + durationPerImage / 2,
             startTime + durationPerImage,
           ],
-          index % 2 === 0 ? [1, 1.2, 1] : [1.2, 1, 1.2],
+          index % 2 === 0 ? [1, 1.1, 1] : [1.1, 1, 1.1],
           { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
         );
 
         return (
           <Sequence
             key={index}
-            from={startTime}
-            durationInFrames={durationPerImage}
+            from={startTime - 30}
+            durationInFrames={durationPerImage + 30}
           >
             <Img
               src={item}

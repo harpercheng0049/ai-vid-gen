@@ -8,10 +8,8 @@ export async function POST(req) {
   try {
     // 從前端發來的 JSON body 裡拿到 prompt
     const { prompt } = await req.json();
-    console.log(prompt);
 
     const result = await chatSession.sendMessage(prompt);
-    console.log(result.response.text());
 
     return NextResponse.json({ result: JSON.parse(result.response.text()) });
   } catch (e) {

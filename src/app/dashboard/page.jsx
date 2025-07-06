@@ -24,7 +24,6 @@ export default function Dashboard() {
       .from(VideoData)
       .where(eq(VideoData?.createdBy, user?.primaryEmailAddress?.emailAddress));
 
-    console.log(result);
     setVideoList(result);
   };
 

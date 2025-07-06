@@ -6,6 +6,7 @@ import { eq } from "drizzle-orm";
 import React, { useEffect } from "react";
 
 export default function Provider({ children }) {
+  // useUser：Clerk 提供的 hook，用來取得目前登入使用者的資訊
   const { user } = useUser();
 
   useEffect(() => {

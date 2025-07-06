@@ -1,7 +1,6 @@
 "use client";
 import React, { useContext } from "react";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
 import { UserButton } from "@clerk/nextjs";
 import { UserDetailContext } from "@/app/_context/UserDetailContext";
 
@@ -19,7 +18,6 @@ export default function Header() {
           <Image src={"/coin.svg"} width={20} height={20} alt="coin" />
           <h2>{userDetail?.credits}</h2>
         </div>
-        <Button className="cursor-pointer">Dashboard</Button>
         <UserButton />
       </div>
     </div>

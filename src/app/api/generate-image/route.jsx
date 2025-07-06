@@ -32,7 +32,6 @@ export async function POST(req) {
     await uploadString(storageRef, base64Image, "data_url");
 
     const downloadUrl = await getDownloadURL(storageRef);
-    console.log(downloadUrl);
 
     return NextResponse.json({ result: downloadUrl });
   } catch (e) {
@@ -47,7 +46,7 @@ const ConvertImage = async (imageUrl) => {
     });
     const base64Image = Buffer.from(resp.data).toString("base64");
     return base64Image;
-  } catch (e) {
-    console.log("error:", e);
+  } catch (err) {
+    console.error("Failed to convert image:", err);
   }
 };
